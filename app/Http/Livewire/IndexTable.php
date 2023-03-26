@@ -10,13 +10,14 @@ class IndexTable extends Component
 {
     public $contactOfInterest = null;
 
-    
+
     public $modal = ['action' => null, 'title' => null, 'button' => null];
     public $name, $tel;
-    
+    public $search;
+
     public $contacts = null;
     public $addedContactId = 0;
-        
+
     protected function rules()
     {
         return [
@@ -37,6 +38,11 @@ class IndexTable extends Component
     public function render()
     {
         return view('livewire.index-table');
+    }
+
+    public function updatedSearch($newValue)
+    {
+        $this->queryContacts();
     }
 
     public function createContact()
@@ -102,7 +108,11 @@ class IndexTable extends Component
 
     public function queryContacts()
     {
-        $this->contacts = Contact::latest()->get();
+        $this->contacts = Contact::query()
+            ->where('name', 'like', '%' . $this->search . '%')
+            ->orWhere('tel', 'like', '%' . $this->search . '%')
+            ->latest()
+            ->get();
     }
 
     public function deleteContact($contactId)
