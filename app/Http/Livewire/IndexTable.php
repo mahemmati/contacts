@@ -45,6 +45,19 @@ class IndexTable extends Component
         $this->queryContacts();
     }
 
+    public function showContact(Contact $contact)
+    {
+        if (!$this->contactOfInterest = $contact)
+            redirect()->route('contacts');
+
+        $this->showContactDetailsModal();
+    }
+
+    public function showContactDetailsModal()
+    {
+        $this->emit('showContactDetailsModal');
+    }
+
     public function createContact()
     {
         $this->modal['action'] = 'storeContact';
@@ -131,6 +144,8 @@ class IndexTable extends Component
         $this->hideDeleteModal();
 
         $contact->delete();
+
+        $this->reset('contactOfInterest');
 
         $this->queryContacts();
     }
