@@ -33,12 +33,10 @@
                                     data-bs-toggle="dropdown" aria-expanded="false"></button>
                                 <ul class="dropdown-menu">
                                     <li>
-                                        <a wire:click="editContact({{ $contact->id }})" class="dropdown-item">Edit</a>
+                                        <a wire:click="editContact({{ $contact->id }})" class="dropdown-item" href="#">Edit</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item text-danger-emphasis" data-bs-toggle="modal"
-                                            data-bs-target="#confirmDelete"
-                                            data-bs-contact="{{ $contact->id }}">Delete</a>
+                                        <a wire:click="deleteContact({{ $contact->id }})" class="dropdown-item text-danger-emphasis" href="#">Delete</a>
                                     </li>
                                 </ul>
                             </div>
@@ -51,4 +49,5 @@
         <p class="text-center py-5 fw-bold">No contacts available</p>
     @endif
     <x-contact-form-modal :modal="$modal" />
+    <x-delete-contact-modal :contact="$contactOfInterest" />
 </div>

@@ -115,11 +115,36 @@ class IndexTable extends Component
             ->get();
     }
 
-    public function deleteContact($contactId)
+    public function deleteContact(Contact $contact)
     {
-        if ($contact = Contact::find($contactId))
-            $contact->delete();
+        if (!$this->contactOfInterest = $contact)
+            redirect()->route('contacts');
+
+        $this->showDeleteModal();
+    }
+
+    public function destroyContact(Contact $contact)
+    {
+        if (!$contact)
+            redirect()->route('contacts');
+
+        $this->hideDeleteModal();
+
+        $contact->delete();
 
         $this->queryContacts();
+    }
+
+    public function showDeleteModal()
+    {
+        if (!$this->contactOfInterest)
+            redirect()->route('contacts');
+
+        $this->emit('showDeleteContactModal');
+    }
+
+    public function hideDeleteModal()
+    {
+        $this->emit('hideDeleteContactModal');
     }
 }
