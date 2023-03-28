@@ -1,7 +1,7 @@
 <div>
     <div class="row mb-4">
         <div class="col">
-            <h1 class="h4 d-inline-block me-2">Your Contacts</h1>
+            <h1 class="h5 d-inline-block me-2">Your Contacts</h1>
             <button wire:click='createContact' type="button" class="btn btn-primary" data-bs-toggle="modal"
                 data-bs-target="#contactFormModal">Create</button>
         </div>
