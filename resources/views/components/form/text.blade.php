@@ -3,7 +3,7 @@
     $value = old($name);
 @endphp
 <div class="form-floating">
-    <input name="{{ $name }}" id="{{ $name }}" class="form-control @error($name) is-invalid @enderror" value="{{ $value }}" {{ $attributes }}>
+    <textarea name="{{ $name }}" id="{{ $name }}" class="form-control @error($name) is-invalid @enderror" {{ $attributes }}>{{ $value }}</textarea>
     <label for="{{ $name }}">{{ $label }}</label>
     @error($name)
         <div class="invalid-feedback">

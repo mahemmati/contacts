@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('tel', 11)->unique();
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

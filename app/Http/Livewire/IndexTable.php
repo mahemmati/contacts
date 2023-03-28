@@ -10,9 +10,8 @@ class IndexTable extends Component
 {
     public $contactOfInterest = null;
 
-
     public $modal = ['action' => null, 'title' => null, 'button' => null];
-    public $name, $tel;
+    public $name, $tel, $notes;
     public $search;
 
     public $contacts = null;
@@ -27,12 +26,23 @@ class IndexTable extends Component
                 'size:11',
                 Rule::unique('contacts')->ignore($this->contactOfInterest?->id)
             ],
+            'notes' => 'nullable',
         ];
     }
 
     public function mount()
     {
         $this->queryContacts();
+    }
+
+    public function queryContacts()
+    {
+        $this->contacts = Contact::query()
+            ->where('name', 'like', '%' . $this->search . '%')
+            ->orWhere('tel', 'like', '%' . $this->search . '%')
+            ->orWhere('notes', 'like', '%' . $this->search . '%')
+            ->latest()
+            ->get();
     }
 
     public function render()
@@ -45,12 +55,78 @@ class IndexTable extends Component
         $this->queryContacts();
     }
 
-    public function showContact(Contact $contact)
+    public function createContact()
     {
-        if (!$this->contactOfInterest = $contact)
+        $this->modal['action'] = 'storeContact';
+        $this->modal['title'] = 'Create New Contact';
+        $this->modal['button'] = 'Store';
+
+        $this->showCreateEditFormModal();
+    }
+
+    public function storeContact()
+    {
+        $this->reset('contactOfInterest');
+        $validated = $this->validate();
+        $this->contactOfInterest = Contact::create($validated);
+        $this->queryContacts();
+        $this->hideCreateEditFormModal();
+    }
+
+    public function showContact($id)
+    {
+        if (!$this->contactOfInterest = Contact::find($id))
             redirect()->route('contacts');
 
         $this->showContactDetailsModal();
+    }
+
+    public function editContact($id)
+    {
+        if (!$this->contactOfInterest = Contact::find($id))
+            redirect()->route('contacts');
+
+        $this->name = $this->contactOfInterest->name;
+        $this->tel = $this->contactOfInterest->tel;
+        $this->notes = $this->contactOfInterest->notes;
+
+        $this->modal['action'] = "updateContact()";
+        $this->modal['title'] = 'Edit Contact';
+        $this->modal['button'] = 'Update';
+
+        $this->showCreateEditFormModal();
+    }
+
+    public function updateContact()
+    {
+        if (!$this->contactOfInterest)
+            redirect()->route('contacts');
+
+        if (!$this->contactOfInterest->update($this->validate()))
+            redirect()->route('contacts');
+
+        $this->hideCreateEditFormModal();
+    }
+
+    public function deleteContact($id)
+    {
+        if (!$this->contactOfInterest = Contact::find($id))
+            redirect()->route('contacts');
+
+        $this->showDeleteModal();
+    }
+
+    public function destroyContact()
+    {
+        if (!$this->contactOfInterest)
+            redirect()->route('contacts');
+
+        $this->contactOfInterest->delete();
+        $this->queryContacts();
+
+        $this->hideDeleteModal();
+
+        $this->reset('contactOfInterest');
     }
 
     public function showContactDetailsModal()
@@ -58,96 +134,22 @@ class IndexTable extends Component
         $this->emit('showContactDetailsModal');
     }
 
-    public function createContact()
+    public function showCreateEditFormModal()
     {
-        $this->modal['action'] = 'storeContact';
-        $this->modal['title'] = 'Create New Contact';
-        $this->modal['button'] = 'Store';
+        $this->emit('showCreateEditForm');
     }
 
-    public function storeContact()
+    public function hideCreateEditFormModal()
     {
-        $validated = $this->validate();
-        $this->contactOfInterest = Contact::create($validated);
-        $this->queryContacts();
-        $this->hideModal();
+        $this->emit('hideCreateEditFormModal');
+        $this->resetCreateEditFormModal();
     }
 
-    public function editContact($id)
+    public function resetCreateEditFormModal()
     {
-        if (!$contact = Contact::find($id))
-            redirect()->route('contacts');
-
-        $this->name = $contact->name;
-        $this->tel = $contact->tel;
-
-        $this->modal['action'] = "updateContact($id)";
-        $this->modal['title'] = 'Edit Contact';
-        $this->modal['button'] = 'Update';
-
-        $this->showModal();
-    }
-
-    public function updateContact($id)
-    {
-        if (!$this->contactOfInterest = Contact::find($id))
-            redirect()->route('contacts');
-
-        if (!$this->contactOfInterest->update($this->validate()))
-            redirect()->route('contacts');
-
-        $this->queryContacts();
-        $this->hideModal();
-    }
-
-    public function showModal()
-    {
-        $this->emit('showContactFormModal');
-    }
-
-    public function resetModal()
-    {
-        $this->modal = ['action' => null, 'title' => null, 'button' => null];
-        $this->name = null;
-        $this->tel = null;
+        $this->reset('modal');
+        $this->reset(['name', 'tel', 'notes']);
         $this->resetValidation();
-    }
-
-    public function hideModal()
-    {
-        $this->emit('hideContactFormModal');
-        $this->resetModal();
-    }
-
-    public function queryContacts()
-    {
-        $this->contacts = Contact::query()
-            ->where('name', 'like', '%' . $this->search . '%')
-            ->orWhere('tel', 'like', '%' . $this->search . '%')
-            ->latest()
-            ->get();
-    }
-
-    public function deleteContact(Contact $contact)
-    {
-        if (!$this->contactOfInterest = $contact)
-            redirect()->route('contacts');
-
-        $this->showDeleteModal();
-    }
-
-    public function destroyContact(Contact $contact)
-    {
-        if (!$contact)
-            redirect()->route('contacts');
-
-        $this->hideDeleteModal();
-
-        $contact->delete();
-
-        $this->reset('contactOfInterest');
-
-        $this->queryContacts();
     }
 
     public function showDeleteModal()

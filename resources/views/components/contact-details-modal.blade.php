@@ -11,6 +11,8 @@
                 <p class="fw-bold">{{ $contact?->name }}</p>
                 <p class="mb-0">Number:</p>
                 <p class="fw-bold">{{ $contact?->tel }}</p>
+                <p class="fw-bold mb-0">Notes:</p>
+                <p>{{ $contact?->notes }}</p>
             </div>
             <div class="modal-footer">
                 <button wire:click="deleteContact({{ $contact?->id }})"

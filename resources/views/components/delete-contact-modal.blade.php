@@ -8,12 +8,13 @@
             </div>
             <div class="modal-body">
                 <p>Confirm deletion of contact:</p>
-                <p>{{ $contact?->name }}</p>
+                <p class="fw-bold">{{ $contact?->name }}</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button wire:click="destroyContact({{ $contact?->id }})"
-                    class="btn btn-danger px-5">Destroy</button>
+                <button wire:click="showContact({{ $contact?->id }}) type="button" class="btn btn-secondary"
+                    data-bs-dismiss="modal">Cancel</button>
+                <button wire:click="destroyContact()" class="btn btn-danger px-5"
+                    data-bs-dismiss="modal">Confirm Delete</button>
             </div>
         </div>
     </div>
@@ -22,16 +23,13 @@
 @push('scripts')
     <script>
         // const deleteContactModalElement = document.getElementById('deleteContactModal');
-        const deleteContactModal = new bootstrap.Modal('#deleteContactModal');
-
         // deleteContactModalElement.addEventListener('hidden.bs.modal', event => {
-        //     @this.hideModal();
         // })
 
+        const deleteContactModal = new bootstrap.Modal('#deleteContactModal');
         Livewire.on('showDeleteContactModal', () => {
             deleteContactModal.show();
         });
-
         Livewire.on('hideDeleteContactModal', () => {
             deleteContactModal.hide();
         });
