@@ -1,8 +1,4 @@
 <div>
-    <svg class="bi" width="32" height="32" fill="currentColor">
-        <use xlink:href="bootstrap-icons.svg#heart-fill" />
-    </svg>
-
     <div class="row mb-4">
         <div class="col">
             <h1 class="h5 d-inline-block me-2">Your Contacts</h1>
@@ -18,7 +14,7 @@
 
 
     @if ($contacts->count())
-        <table class="table table-striped">
+        <table class="table table-striped mb-4">
             <thead>
                 <tr>
                     <th wire:click="toggleSort('name')" scope="col">
@@ -59,6 +55,11 @@
                 @endforeach
             </tbody>
         </table>
+        <div class="row align-items-center">
+            <div class="col-auto">
+                {{ $contacts->links() }}
+            </div>
+        </div>
     @else
         <p class="text-center py-5 fw-bold">No contacts available</p>
     @endif

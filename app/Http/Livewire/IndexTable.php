@@ -6,9 +6,12 @@ use App\Models\Contact;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class IndexTable extends Component
 {
+    use WithPagination;
+
     public $contactOfInterest = null;
 
     public $modal = ['action' => null, 'title' => null, 'button' => null];
@@ -16,8 +19,10 @@ class IndexTable extends Component
     public $search;
     public $sortColumn, $sortDir;
 
-    public $contacts = null;
     public $addedContactId = 0;
+
+    protected $paginationTheme = 'bootstrap';
+
 
     protected function rules()
     {
@@ -40,30 +45,26 @@ class IndexTable extends Component
 
     public function mount()
     {
-        $this->queryContacts();
     }
 
-    public function queryContacts()
+    public function updatingSearch()
     {
-        $this->contacts = Contact::query()
-            ->where('name', 'like', '%' . $this->search . '%')
-            ->orWhere('tel', 'like', '%' . $this->search . '%')
-            ->orWhere('notes', 'like', '%' . $this->search . '%')
-            ->when($this->sortColumn, function (Builder $query) {
-                $query->orderBy($this->sortColumn, $this->sortDir);
-            })
-            ->latest()
-            ->get();
+        $this->resetPage();
     }
 
     public function render()
     {
-        return view('livewire.index-table');
-    }
-
-    public function updatedSearch($newValue)
-    {
-        $this->queryContacts();
+        return view('livewire.index-table', [
+            'contacts' => Contact::query()
+                ->where('name', 'like', '%' . $this->search . '%')
+                ->orWhere('tel', 'like', '%' . $this->search . '%')
+                ->orWhere('notes', 'like', '%' . $this->search . '%')
+                ->when($this->sortColumn, function (Builder $query) {
+                    $query->orderBy($this->sortColumn, $this->sortDir);
+                })
+                ->latest()
+                ->paginate(8)
+        ]);
     }
 
     public function toggleSort($column)
@@ -76,8 +77,6 @@ class IndexTable extends Component
         } else {
             $this->sortDir = 'asc';
         }
-
-        $this->queryContacts();
     }
 
     public function createContact()
@@ -94,7 +93,6 @@ class IndexTable extends Component
         $this->reset('contactOfInterest');
         $validated = $this->validate();
         $this->contactOfInterest = Contact::create($validated);
-        $this->queryContacts();
         $this->hideCreateEditFormModal();
     }
 
@@ -150,7 +148,6 @@ class IndexTable extends Component
             redirect()->route('contacts');
 
         $this->contactOfInterest->delete();
-        $this->queryContacts();
 
         $this->hideDeleteModal();
 
