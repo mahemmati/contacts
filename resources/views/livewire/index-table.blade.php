@@ -1,8 +1,8 @@
 <div>
     <svg class="bi" width="32" height="32" fill="currentColor">
-        <use xlink:href="bootstrap-icons.svg#heart-fill"/>
-      </svg>
-      
+        <use xlink:href="bootstrap-icons.svg#heart-fill" />
+    </svg>
+
     <div class="row mb-4">
         <div class="col">
             <h1 class="h5 d-inline-block me-2">Your Contacts</h1>
@@ -11,7 +11,8 @@
     </div>
     <div class="row mb-2">
         <div class="col">
-            <input wire:model='search' class="form-control" type="search" placeholder="Search Names or Numbers" aria-label="Search">
+            <input wire:model='search' class="form-control" type="search" placeholder="Search Names or Numbers"
+                aria-label="Search">
         </div>
     </div>
 
@@ -20,14 +21,39 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Number</th>
+                    <th wire:click="toggleSort('name')" scope="col">
+                        <span>Name</span>
+                        @if ($sortColumn == 'name')
+                            @if ($sortDir == 'asc')
+                                <i class="bi bi-caret-up small"></i>
+                            @endif
+                            @if ($sortDir == 'desc')
+                                <i class="bi bi-caret-down small"></i>
+                            @endif
+                        @endif
+                    </th>
+                    <th wire:click="toggleSort('tel')" scope="col">
+                        <span>Number</span>
+                        @if ($sortColumn == 'tel')
+                            @if ($sortDir == 'asc')
+                                <i class="bi bi-caret-up small"></i>
+                            @endif
+                            @if ($sortDir == 'desc')
+                                <i class="bi bi-caret-down small"></i>
+                            @endif
+                        @endif
+                    </th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($contacts as $contact)
                     <tr wire:click="showContact({{ $contact->id }})" @class(['table-success' => $contact->id == $contactOfInterest?->id])>
-                        <td>{{ $contact->name }}</td>
+                        <td>
+                            <span>{{ $contact->name }}</span>
+                            @if ($contact->notes)
+                                <i class="bi bi-card-text text-muted"></i>
+                            @endif
+                        </td>
                         <td>{{ $contact->tel }}</td>
                     </tr>
                 @endforeach

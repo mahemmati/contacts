@@ -3,6 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Models\Contact;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -13,6 +14,7 @@ class IndexTable extends Component
     public $modal = ['action' => null, 'title' => null, 'button' => null];
     public $name, $tel, $notes;
     public $search;
+    public $sortColumn, $sortDir;
 
     public $contacts = null;
     public $addedContactId = 0;
@@ -32,6 +34,8 @@ class IndexTable extends Component
 
     protected $queryString = [
         'search' => ['except' => ''],
+        'sortColumn' => ['except' => ''],
+        'sortDir' => ['except' => ''],
     ];
 
     public function mount()
@@ -45,6 +49,9 @@ class IndexTable extends Component
             ->where('name', 'like', '%' . $this->search . '%')
             ->orWhere('tel', 'like', '%' . $this->search . '%')
             ->orWhere('notes', 'like', '%' . $this->search . '%')
+            ->when($this->sortColumn, function (Builder $query) {
+                $query->orderBy($this->sortColumn, $this->sortDir);
+            })
             ->latest()
             ->get();
     }
@@ -56,6 +63,20 @@ class IndexTable extends Component
 
     public function updatedSearch($newValue)
     {
+        $this->queryContacts();
+    }
+
+    public function toggleSort($column)
+    {
+        if ($this->sortColumn != $column) {
+            $this->sortColumn = $column;
+            $this->sortDir = 'asc';
+        } elseif ($this->sortDir == 'asc') {
+            $this->sortDir = 'desc';
+        } else {
+            $this->sortDir = 'asc';
+        }
+
         $this->queryContacts();
     }
 
@@ -87,8 +108,9 @@ class IndexTable extends Component
 
     public function editContact($id)
     {
-        if (!$this->contactOfInterest = Contact::find($id))
-            redirect()->route('contacts');
+        if (!$this->contactOfInterest = Contact::find($id)) redirect()->route('contacts');
+
+        $this->resetCreateEditFormModal();
 
         $this->name = $this->contactOfInterest->name;
         $this->tel = $this->contactOfInterest->tel;
@@ -97,6 +119,7 @@ class IndexTable extends Component
         $this->modal['action'] = "updateContact()";
         $this->modal['title'] = 'Edit Contact';
         $this->modal['button'] = 'Update';
+
 
         $this->showCreateEditFormModal();
     }
@@ -110,6 +133,7 @@ class IndexTable extends Component
             redirect()->route('contacts');
 
         $this->hideCreateEditFormModal();
+        $this->showContactDetailsModal();
     }
 
     public function deleteContact($id)
@@ -146,7 +170,6 @@ class IndexTable extends Component
     public function hideCreateEditFormModal()
     {
         $this->emit('hideCreateEditFormModal');
-        $this->resetCreateEditFormModal();
     }
 
     public function resetCreateEditFormModal()
