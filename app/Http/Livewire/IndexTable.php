@@ -30,6 +30,10 @@ class IndexTable extends Component
         ];
     }
 
+    protected $queryString = [
+        'search' => ['except' => ''],
+    ];
+
     public function mount()
     {
         $this->queryContacts();
