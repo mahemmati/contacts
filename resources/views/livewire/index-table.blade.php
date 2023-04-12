@@ -45,7 +45,7 @@
                 @foreach ($contacts as $contact)
                     <tr wire:click="showContact({{ $contact->id }})" @class(['table-success' => $contact->id == $contactOfInterest?->id])>
                         <td>
-                            <span>{{ $contact->name }}</span>
+                            <span @class(['fw-bold' => $contact->is_unread])>{{ $contact->name }}</span>
                             @if ($contact->notes)
                                 <i class="bi bi-card-text text-muted"></i>
                             @endif

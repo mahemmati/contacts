@@ -3,7 +3,9 @@
 namespace App\Http\Livewire;
 
 use App\Models\Contact;
+use App\Models\Read;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -102,6 +104,17 @@ class IndexTable extends Component
             redirect()->route('contacts');
 
         $this->showContactDetailsModal();
+
+        $updated = Read::query()
+            ->where('contact_id', $this->contactOfInterest->id)
+            ->update(['read_at' => now()]);
+
+        if (!$updated) {
+            Read::create([
+                'contact_id' => $this->contactOfInterest->id,
+                'read_at' => now()
+            ]);
+        }
     }
 
     public function editContact($id)
